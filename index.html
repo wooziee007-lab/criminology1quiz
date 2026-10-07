@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Criminology Quiz Reviewer</title>
+<style>
+:root{--bg1:#111827;--bg2:#1e3a5f;--ink:#fff;--muted:#cbd5e1;--card:rgba(255,255,255,.08);--line:rgba(255,255,255,.15);--btn:#2563eb;--btnh:#1d4ed8;--sec:#475569;--ok:#166534;--bad:#991b1b;--bar:#334155;--fill:#3b82f6;--exp:#dbeafe;--field:#fff;--fieldink:#111827;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg1:#eef2f9;--bg2:#dbe6f6;--ink:#14213d;--muted:#4b5871;--card:rgba(255,255,255,.85);--line:#c3cde0;--bar:#c3cde0;--exp:#1e3a8a;--ok:#bde8cb;--bad:#f7c6c6}}
+:root[data-theme="light"]{--bg1:#eef2f9;--bg2:#dbe6f6;--ink:#14213d;--muted:#4b5871;--card:rgba(255,255,255,.85);--line:#c3cde0;--bar:#c3cde0;--exp:#1e3a8a;--ok:#bde8cb;--bad:#f7c6c6}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:linear-gradient(135deg,var(--bg1),var(--bg2));background-attachment:fixed;color:var(--ink);min-height:100vh;line-height:1.45;-webkit-text-size-adjust:100%}
+header{padding:22px 16px;text-align:center;background:rgba(0,0,0,.15)}
+header h1{font-size:clamp(1.4rem,5vw,1.9rem)}
+header p{margin-top:6px;color:var(--muted);font-size:.95rem}
+.container{max-width:850px;margin:auto;padding:20px 14px 40px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:16px;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.card h2{margin-bottom:6px;font-size:1.15rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:14px;margin-bottom:16px}
+.grid .card{margin:0}
+.subject{cursor:pointer;transition:transform .2s,background .2s;text-align:left;width:100%;color:inherit;font:inherit;border:1px solid var(--line)}
+.subject:hover{transform:translateY(-3px)}
+.icon{font-size:2rem;margin-bottom:8px}
+button{border:0;border-radius:12px;padding:14px 18px;cursor:pointer;font:inherit;font-weight:700;background:var(--btn);color:#fff;margin:12px 8px 0 0;min-height:48px;touch-action:manipulation}
+button:hover{background:var(--btnh)}
+button:focus-visible,select:focus-visible{outline:3px solid #fbbf24;outline-offset:2px}
+button.subject{background:var(--card);margin:0;font-weight:400;min-height:0}
+button.subject:hover{background:var(--card)}
+.secondary{background:var(--sec)}
+.hidden{display:none}
+.option{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);color:var(--ink);margin:10px 0 0;font-weight:500}
+.option:hover:not(:disabled){background:var(--line)}
+.option:disabled{cursor:default}
+.option.correct{background:var(--ok);border-color:var(--ok)}
+.option.wrong{background:var(--bad);border-color:var(--bad)}
+.progress{height:10px;background:var(--bar);border-radius:10px;overflow:hidden;margin:14px 0}
+.progress-bar{height:100%;background:var(--fill);width:0;transition:width .3s}
+#question{font-size:clamp(1.1rem,4.5vw,1.4rem);line-height:1.35}
+.explanation{margin-top:14px;padding:14px;background:var(--card);border-radius:10px;color:var(--exp)}
+.score{font-size:clamp(2.4rem,12vw,3.4rem);font-weight:800;text-align:center;margin:16px}
+label{display:block;margin-top:12px;font-weight:600}
+select{width:100%;padding:14px;border-radius:10px;border:0;margin-top:6px;font-size:1rem;background:var(--field);color:var(--fieldink)}
+.center{text-align:center}
+@media (max-width:480px){.card{padding:14px}button{width:100%;margin-right:0}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <h1>🎓 Criminology Quiz Reviewer</h1>
+  <p>Study • Practice • Test Your Knowledge</p>
+</header>
+
+<div class="container">
+  <section id="home">
+    <div class="card"><h2>📚 Choose a Subject</h2><p>Select a topic to start reviewing.</p></div>
+    <div class="grid" id="subjects"></div>
+    <div class="card">
+      <h2>⚡ Random Quiz</h2>
+      <p>Test yourself using questions from different criminology subjects.</p>
+      <label for="randomCount">Number of Questions</label>
+      <select id="randomCount">
+        <option value="5">5 Questions</option>
+        <option value="10" selected>10 Questions</option>
+        <option value="20">20 Questions</option>
+      </select>
+      <button onclick="startRandomQuiz()">Start Random Quiz</button>
+    </div>
+  </section>
+
+  <section id="settings" class="hidden">
+    <div class="card">
+      <h2 id="selectedSubject"></h2>
+      <label for="difficulty">Difficulty</label>
+      <select id="difficulty">
+        <option value="all">All Levels</option>
+        <option value="easy">Easy</option>
+        <option value="medium">Medium</option>
+        <option value="hard">Hard</option>
+      </select>
+      <label for="questionCount">Number of Questions</label>
+      <select id="questionCount">
+        <option value="5">5 Questions</option>
+        <option value="10" selected>10 Questions</option>
+        <option value="20">20 Questions</option>
+      </select>
+      <button onclick="beginQuiz()">Start Quiz</button>
+      <button class="secondary" onclick="goHome()">Back</button>
+    </div>
+  </section>
+
+  <section id="quiz" class="hidden">
+    <div class="card">
+      <p id="questionNumber"></p>
+      <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+      <h2 id="question"></h2>
+      <div id="options"></div>
+      <div id="explanation" class="explanation hidden" aria-live="polite"></div>
+      <button id="nextButton" onclick="nextQuestion()" class="hidden">Next Question →</button>
+    </div>
+  </section>
+
+  <section id="results" class="hidden">
+    <div class="card">
+      <h2 class="center">🏆 Quiz Complete!</h2>
+      <div class="score" id="finalScore"></div>
+      <p class="center" id="resultMessage"></p>
+      <button onclick="restartQuiz()">Try Again</button>
+      <button class="secondary" onclick="goHome()">Back to Subjects</button>
+    </div>
+  </section>
+</div>
+
+<script>
+/* QUIZ DATABASE — ADD MORE QUESTIONS HERE.
+   Each question: [question, correct answer, wrong1, wrong2, wrong3, difficulty, explanation]
+   Options are shuffled automatically, so list the correct answer first. */
+const quizData = {
+  "Introduction to Criminology": {icon:"📚", questions:[
+    ["What is the scientific study of crime, criminals, and criminal behavior?","Criminology","Criminalistics","Penology","Victimology","easy","Criminology is the scientific study of crime, criminals, criminal behavior, and related social phenomena."],
+    ["Who is commonly associated with the Classical School of Criminology?","Cesare Beccaria","Cesare Lombroso","Enrico Ferri","Raffaele Garofalo","easy","Cesare Beccaria was a major figure of the Classical School of Criminology."],
+    ["Which school emphasized free will and rational choice in criminal behavior?","Classical School","Positivist School","Chicago School","Conflict School","medium","The Classical School generally emphasized free will, rational decision-making, and proportional punishment."],
+    ["Who defined criminology as \"the entire body of knowledge regarding crime as a social phenomenon\"?", "Edwin H. Sutherland", "Cesare Beccaria", "Raffaele Garofalo", "Paul Topinard", "easy", "Sutherland's definition covers the making of laws, the breaking of laws, and society's reaction to lawbreaking."],
+    ["The word criminology comes from the Latin \"crimen\" and the Greek \"logos\". What do they mean?", "Crime and study", "Criminal and law", "Punishment and science", "Offender and knowledge", "easy", "Crimen means crime and logos means to study."],
+    ["Who coined the term \"criminologia\" in 1885?", "Raffaele Garofalo", "Paul Topinard", "Cesare Lombroso", "Enrico Ferri", "medium", "Garofalo, an Italian law professor, coined criminologia in 1885."],
+    ["Who first used the French term \"criminologie\" in 1889?", "Paul Topinard", "Raffaele Garofalo", "Edwin Sutherland", "Emile Durkheim", "hard", "Paul Topinard, a French anthropologist, used criminologie for the first time in 1889."],
+    ["Who is known as the Dean of Modern Criminology?", "Edwin H. Sutherland", "Cesare Lombroso", "Cesare Beccaria", "Emile Durkheim", "medium", "Sutherland is called the Dean of Modern Criminology."],
+    ["Which law is known as the Philippine Criminology Profession Act of 2018?", "R.A. 11131", "R.A. 6506", "R.A. 10912", "R.A. 7610", "easy", "R.A. 11131 regulates the practice of criminology and repealed R.A. 6506."],
+    ["Which law created the Board of Examiners for Criminologists, effective July 1, 1972?", "R.A. 6506", "R.A. 11131", "R.A. 10912", "R.A. 7659", "medium", "R.A. 6506 created the Board of Examiners for Criminologists in the Philippines."],
+    ["Which division of criminology controls crimes and rehabilitates offenders?", "Penology", "Etiology of Crimes", "Sociology of Law", "Criminalistics", "easy", "Penology is the study of the control of crimes and the rehabilitation of offenders."],
+    ["Which division of criminology investigates the nature of criminal law and its administration?", "Sociology of Law", "Etiology of Crimes", "Penology", "Victimology", "medium", "Sociology of Law studies how criminal law is made and administered."],
+    ["Criminology is an \"applied science\" because:", "It has established principles that other fields of study use", "It studies crime as a social phenomenon", "Its concepts adapt to changing times", "It considers the laws and culture of a country", "medium", "Applied means its universally accepted principles are used by other fields (instrumentation)."],
+    ["Which nature of criminology means its concepts adapt to the changing times?", "Dynamic", "Nationalistic", "Applied", "Social", "medium", "Criminology is dynamic because its concepts and applications change with the times."],
+    ["The study of the relationship between criminality and population is called:", "Criminal demography", "Criminal epidemiology", "Criminal ecology", "Criminal psychiatry", "medium", "Criminal demography studies criminality in relation to population."],
+    ["Criminal ecology is the study of criminality in relation to:", "Spatial distribution in a community", "Population size", "The physical build of men", "The human mind", "hard", "Criminal ecology looks at where crimes occur in a community."],
+    ["What are the three elements of the Triangle of Crime?", "Desire, opportunity, and capability", "Motive, means, and opportunity", "Intent, act, and result", "Desire, intent, and weapon", "medium", "Capability was added to the original two elements, desire and opportunity."],
+    ["Which view of crime holds that crimes are behaviors considered wrong by all elements of society?", "Consensus view", "Conflict view", "Interactionist view", "Positivist view", "medium", "Consensus means a meeting of minds that certain acts should be criminalized."],
+    ["Which view of crime holds that there is no objective reality and that crime depends on the evaluators?", "Interactionist view", "Consensus view", "Conflict view", "Classical view", "hard", "Under the interactionist view, what is criminal can change with public opinion."],
+    ["Acts that are bad in themselves, such as murder and rape, are called:", "Mala in se", "Mala prohibita", "Infractions", "Misdemeanors", "easy", "Mala in se violate basic moral values."],
+    ["Which crimes are wrong only because a law prohibits them, such as traffic and tax violations?", "Mala prohibita", "Mala in se", "Felonies", "Acquisitive crimes", "easy", "Mala prohibita are bad because there is a law prohibiting them."],
+    ["A violation of the Revised Penal Code is called a:", "Felony", "Offense", "Infraction", "Misdemeanor", "easy", "Felony is a violation of the RPC. Offense is for special penal laws and infraction is for ordinances."],
+    ["A violation of a city, municipal, or provincial ordinance is called a(n):", "Infraction", "Felony", "Offense", "Quasi-offense", "medium", "Littering and curfew violations are examples of infractions."],
+    ["The offender performed all the acts of execution, but the felony was not produced due to causes independent of his will. This is a:", "Frustrated crime", "Attempted crime", "Consummated crime", "Impossible crime", "medium", "Frustrated crime means all acts of execution were performed but the felony was not produced."],
+    ["X, with intent to kill, fired a gun at Y but missed and Y ran away. The crime is:", "Attempted homicide", "Frustrated homicide", "Consummated homicide", "Impossible crime", "medium", "The module's example: a missed shot is only attempted homicide."],
+    ["The elements of dolo or deceit are:", "Freedom, intelligence, and intent", "Freedom, intelligence, and negligence", "Intent, negligence, and imprudence", "Desire, opportunity, and intent", "medium", "Culpa has negligence or imprudence in place of intent."],
+    ["A single act that constitutes two or more grave felonies, or one crime that is a necessary means to commit another, is a:", "Complex crime", "Simple crime", "Impossible crime", "Continuing crime", "medium", "Complex crimes are either compound crimes or complex crimes proper."],
+    ["Light felonies carry the penalty of:", "Arresto menor or a fine not exceeding P200", "Correctional penalties", "Afflictive penalties", "Reclusion perpetua", "hard", "Arresto menor is 1 to 30 days."],
+    ["Theft or lasciviousness committed during rush hour in public transport is what kind of crime by time?", "Situational crime", "Seasonal crime", "Episodic crime", "Static crime", "medium", "Situational crimes happen only when the situation is conducive to them."],
+    ["Kidnapping that continues over days or months is classified by length of time as:", "Episodic crime", "Instant crime", "Static crime", "Seasonal crime", "hard", "Episodic crimes are committed through a series of acts over a lengthy time."],
+    ["Homicide, parricide, arson, and malicious mischief are examples of:", "Extinctive crimes", "Acquisitive crimes", "Seasonal crimes", "Instant crimes", "medium", "Extinctive crimes destroy life or property."],
+    ["A crime committed by a person of upper socioeconomic class in the course of his occupation, such as graft and plunder, is:", "White-collar crime", "Blue-collar crime", "Organized crime", "Ordinary crime", "easy", "Graft, plunder, and smuggling are white-collar crimes."],
+    ["Crimes such as prostitution, gambling, and drug addiction are also called:", "Victimless crimes", "Acquisitive crimes", "Corporate crimes", "Inchoate crimes", "medium", "They are called victimless because there is no complaining victim."],
+    ["Criminals who violate the law because of the impulse of the moment, a fit of passion, or anger are:", "Acute criminals", "Chronic criminals", "Neurotic criminals", "Habitual criminals", "medium", "Acute criminals act on impulse or passion."],
+    ["In the criminological sense, a person is considered a criminal:", "The moment he commits a crime", "Only after final conviction by a court", "Upon his arrest", "Upon filing of the information in court", "medium", "In the legal sense, guilt is determined by a competent court's final judgment."],
+    ["An individual who earns his living solely by buying and retailing stolen merchandise is a:", "Professional fence", "Career criminal", "Reasoning criminal", "Situational criminal", "medium", "A professional fence deals in stolen goods."],
+    ["Who founded the Philippine College of Criminology, which offered the first Bachelor of Science in Criminology?", "Justice Felix Angelo Bautista", "Justice Luis Reyes", "Nicholas Caballero", "Datu Sumakwel", "hard", "The module credits former Supreme Court Justice Felix Angelo Bautista."],
+    ["Parricide is the killing of one's own:", "Father, mother, spouse, or child", "Brother", "Sister", "Wife only", "medium", "Parricide covers the killing of an ascendant, descendant, or spouse."],
+    ["Infanticide is the killing of an infant less than how many days old?", "3 days", "7 days", "30 days", "1 day", "hard", "The module defines infanticide as the killing of an infant less than 3 days old."],
+    ["The killing of one's own brother is called:", "Fratricide", "Sororicide", "Matricide", "Uxoricide", "medium", "Sororicide is killing one's own sister."],
+    ["The killing of a mother by her own child is called:", "Matricide", "Patricide", "Regicide", "Vaticide", "medium", "Patricide is the killing of a father by his own child."],
+    ["Uxoricide is the act of:", "Murdering one's wife", "Killing one's husband", "Killing a senior citizen", "Killing a prophet", "hard", "Eldercide is the murder of a senior citizen and vaticide is the killing of a prophet."],
+    ["The killing of a king is called:", "Regicide", "Vaticide", "Eldercide", "Fratricide", "medium", "Regicide is the killing or murder of a king."],
+    ["Mercy killing, or painlessly putting to death a person suffering from an incurable disease, is:", "Euthanasia", "Suicide", "Aborticide", "Infanticide", "easy", "Euthanasia is mercy killing."],
+    ["The killing of a large number of people over time by an offender who seeks to escape detection is:", "Serial murder", "Mass murder", "Voluntary manslaughter", "Infanticide", "hard", "Mass murder happens in a single incident."],
+    ["The killing of a large number of people in a single incident, where the offender typically does not seek concealment or escape, is:", "Mass murder", "Serial murder", "Involuntary manslaughter", "Parricide", "medium", "It differs from serial murder, which occurs over time."],
+    ["A homicide committed in the heat of passion or during a sudden quarrel, where intent may be present but malice is not, is:", "Voluntary manslaughter", "Involuntary manslaughter", "Murder", "Parricide", "hard", "Malice is absent in voluntary manslaughter."],
+    ["A homicide resulting from negligent acts, such as driving under the influence, is:", "Involuntary manslaughter", "Voluntary manslaughter", "Murder", "Mass murder", "medium", "It is also known as negligent manslaughter."],
+    ["The intentional or negligent burning of a home, structure, or vehicle for profit, revenge, fraud, or concealment is:", "Arson", "Burglary", "Malicious mischief", "Carjacking", "easy", "Arson for profit means hiring a professional arsonist to collect insurance."],
+    ["Breaking into and entering a home or structure to commit a felony is:", "Burglary", "Robbery", "Larceny", "Carjacking", "medium", "Robbery requires force or threat against the victim."],
+    ["Taking something of value by force, threat of force, or by putting the victim in fear is:", "Robbery", "Larceny", "Pilferage", "Burglary", "easy", "Robbery involves force or intimidation."],
+    ["The theft of a car by force or threat of force is:", "Carjacking", "Burglary", "Pilferage", "Churning", "easy", "Carjacking is a crime against property."],
+    ["A white-collar crime in which a stockbroker makes repeated trades to fraudulently increase his commission is:", "Churning", "Pilferage", "Larceny", "Arson fraud", "hard", "Churning is a form of commercial fraud."],
+    ["Theft by employees through stealth or deception is:", "Pilferage", "Churning", "Carjacking", "Burglary", "medium", "Pilferage is employee theft."],
+    ["Theft of a small amount of money or property, punished as a misdemeanor, is:", "Petit larceny", "Grand larceny", "Robbery", "Burglary", "medium", "Grand larceny involves property of substantial value."],
+    ["Sexual relations between an underage minor female and an adult male is:", "Statutory rape", "Date rape", "Marital rape", "Gang rape", "medium", "Date rape happens during a courting relationship."],
+    ["Forcible sex between people who are legally married to each other is:", "Marital rape", "Date rape", "Statutory rape", "Serial rape", "easy", "Serial rape is multiple rapes by one person over time."],
+    ["Violent acts directed at a person because of race, ethnicity, religion, or gender are:", "Bias or hate crimes", "Corporate crimes", "Inchoate crimes", "Statutory crimes", "medium", "Hate crimes are meant to terrorize people considered undesirable."],
+    ["A crime is considered \"cleared\" when:", "At least one person is arrested, charged, and turned over to the court", "The victim withdraws the complaint", "The case is dismissed", "The offender confesses to a friend", "hard", "It can also be cleared by exceptional means, such as the offender leaving the country."],
+    ["Incomplete or contemplated crimes, such as criminal solicitation or attempts, are:", "Inchoate crimes", "Statutory crimes", "Expressive crimes", "Enterprise crimes", "hard", "Inchoate means incomplete."],
+    ["The commission of criminal acts using computers or the internet is:", "Cyber crime", "Enterprise crime", "Statutory crime", "Public order crime", "easy", "Capabilities play a big role in cyber crime."],
+    ["An act that would be an offense against person or property, were it not for the inherent impossibility of accomplishing it, is:", "Impossible crime", "Frustrated crime", "Complex crime", "Attempted crime", "medium", "It may also be due to inadequate or ineffectual means."],
+    ["Which statement describes crime as \"reflective\"?", "The crime rate reflects the effectiveness of a community's social defenses", "Almost everyone is a victim or offender at some time", "Governments spend large sums on crime", "The volume of crime increases with population", "hard", "Other reasons are that crime is pervasive, expensive, destructive, and progressive."],
+    ["Which is an advantage of the existence of crime?", "It promotes solidarity of the people", "It reduces the population", "It makes laws unnecessary", "It spreads wealth equally", "medium", "Penal laws also keep morality from going to extremes."],
+    ["Under CMO 21, what percentage of the board exam goes to Sociology of Crime and Ethics?", "15%", "20%", "10%", "25%", "hard", "Criminal Law and Jurisprudence is 20%."],
+    ["Criminal epidemiology is the study of the relationship between:", "Environment and criminality", "Population and criminality", "The human mind and criminality", "Physical build and criminality", "medium", "Criminal demography is about population."],
+    ["Victimology is the study of:", "The role of the victim in the commission of a crime", "Fingerprints", "Punishment", "Courtroom procedure", "medium", "It is one of the sciences related to criminology."],
+    ["Criminals whose actions arise from an intra-psychic conflict between social and anti-social parts of their personality are:", "Neurotic criminals", "Normal criminals", "Acute criminals", "Ordinary criminals", "hard", "A gambler who commits estafa to feed his vice is an example."],
+    ["Criminals with a high degree of organization, such as drug cartels and human trafficking groups, are:", "Organized criminals", "Ordinary criminals", "Accidental criminals", "Acute criminals", "medium", "They commit specialized crimes on a large scale."],
+    ["Persons who commit criminal acts due to unanticipated circumstances are:", "Accidental criminals", "Habitual criminals", "Professional criminals", "Situational criminals", "medium", "An example is someone who mingles with the wrong persons."],
+    ["A crime committed only during a certain period of the year, such as tax evasion, is a:", "Seasonal crime", "Situational crime", "Instant crime", "Episodic crime", "medium", "Tax evasion is tied to the deadline for compliance."],
+    ["A crime that begins and ends in only one place is a:", "Static crime", "Continuing crime", "Episodic crime", "Seasonal crime", "medium", "Kidnapping on a moving vessel is a continuing crime."],
+    ["A crime committed by an offender who does not know the nature of his act because of mental disease is:", "Irrational crime", "Rational crime", "Expressive crime", "Situational crime", "medium", "Rational crimes are committed with intent by a sane offender."]
+  ]},
+  "Criminological Theories": {icon:"🧠", questions:[
+    ["Which theory explains crime partly through the influence of learning from others?","Social Learning Theory","Routine Activity Theory","Classical Theory","Biological Theory","easy","Social Learning Theory emphasizes that behavior can be learned through interaction, observation, and reinforcement."],
+    ["Strain theories generally focus on the relationship between social pressures and:","Deviant or criminal behavior","Fingerprint patterns","Courtroom procedure","DNA analysis","medium","Strain theories examine how pressures or blocked opportunities can contribute to deviant or criminal behavior."],
+    ["Which theory focuses on how being labeled deviant can influence future behavior?","Labeling Theory","Classical Theory","Biological Theory","Deterrence Theory","medium","Labeling Theory examines how societal reactions and labels can influence identity and subsequent behavior."],
+    ["Who is known as a major figure of the Classical School of Criminology?","Cesare Beccaria","Cesare Lombroso","Enrico Ferri","Raffaele Garofalo","easy","Beccaria was a major Classical School thinker who emphasized free will, rationality, and proportionate punishment."],
+    ["Which pre-classical belief held that criminal behavior was caused by evil spirits and demons?", "Demonological theory", "Divine will theory", "Utilitarianism", "Atavism", "easy", "The demonological theory blamed demons for criminal behavior."],
+    ["Which ancient concept holds that God allows a person to commit a crime as punishment for disobedience?", "Divine will theory", "Demonological theory", "Natural law", "Positivism", "medium", "Divine will theory is another pre-classical explanation of crime."],
+    ["The Classical School of Criminology is based on the philosophy of:", "Utilitarianism", "Positivism", "Marxism", "Determinism", "medium", "Classical thinkers like Bentham built on utilitarianism."],
+    ["What was the title of Beccaria's 1764 book?", "On Crimes and Punishments", "The Criminal Man", "Division of Labor in Society", "Physique and Character", "medium", "Dei Delitti e Delle Pene influenced penal reforms in Europe and the US."],
+    ["Beccaria is also branded as the:", "Cradle of Criminology Education", "Father of Modern Criminology", "Father of Psychoanalysis", "Father of Sociology", "hard", "He is also the Father of the Classical School."],
+    ["Who founded utilitarianism and designed the Panopticon prison?", "Jeremy Bentham", "Cesare Beccaria", "Cesare Lombroso", "Auguste Comte", "medium", "Panopticon comes from \"opticon\", meaning all-seeing."],
+    ["Bentham's \"felicific calculus\" states that individuals:", "Weigh pleasure against pain before deciding to commit a crime", "Are born with criminal traits", "Imitate their superiors", "Are controlled by their id", "hard", "To deter crime, punishment must outweigh the pleasure gained."],
+    ["According to the Classical School, the purpose of punishment is:", "Retribution", "Rehabilitation", "Restoration", "Incapacitation", "medium", "Punishment should be proportionate to the gravity of the offense."],
+    ["Which school modified free will by recognizing pathology, insanity, or incompetence as limiting factors?", "Neoclassical School", "Classical School", "Positivist School", "Chicago School", "medium", "Children and lunatics are exempted from punishment under it."],
+    ["Which school is also known as the Italian School of Criminology?", "Positivist School", "Classical School", "Neoclassical School", "Chicago School", "easy", "The Positivists shifted from philosophical to scientific explanations."],
+    ["Who is called the Father of Sociology, whose followers are called \"the Positivists\"?", "Auguste Comte", "Emile Durkheim", "Cesare Lombroso", "Charles Darwin", "medium", "Comte founded positivism in sociology."],
+    ["Who developed the Theory of Evolution of Species and popularized the methods of positivism?", "Charles Darwin", "Auguste Comte", "Sigmund Freud", "Adolphe Quetelet", "easy", "Darwin's work influenced the biological explanations of crime."],
+    ["Who is considered the Father of Modern (Empirical) Criminology?", "Cesare Lombroso", "Cesare Beccaria", "Enrico Ferri", "Raffaele Garofalo", "easy", "Lombroso applied scientific methods to the study of criminals."],
+    ["Lombroso's \"atavistic stigmata\" refers to:", "Physical features of creatures at an earlier stage of development", "Moral anomalies", "Body types", "Unconscious drives", "medium", "He claimed criminals had ape-like features."],
+    ["According to Lombroso, a born criminal has at least how many atavistic stigmata?", "Five", "Three", "Seven", "Ten", "hard", "Born criminals possess at least five atavistic stigmata."],
+    ["Which is NOT one of Lombroso's three classes of criminals?", "Deficient criminals", "Born criminals", "Insane criminals", "Criminaloids", "hard", "Deficient criminals belong to Garofalo's classification."],
+    ["Garofalo traced the roots of criminal behavior to psychological equivalents he called:", "Moral anomalies", "Atavistic stigmata", "Latent delinquency", "Anomie", "hard", "Garofalo focused on psychological rather than physical features."],
+    ["Offenses against the basic moral sentiments of probity and piety found in all societies are called \"natural crimes\" by:", "Raffaele Garofalo", "Enrico Ferri", "Emile Durkheim", "Gabriel Tarde", "medium", "Garofalo is also known for the Law of Adaptation."],
+    ["Which student of Lombroso rejected biological determinism and focused on sociological and ecological factors?", "Enrico Ferri", "Raffaele Garofalo", "Henry Goddard", "Earnest Hooton", "medium", "Ferri saw crime as the product of a combination of factors."],
+    ["Which Kretschmer body type is lean, slightly built, and narrow-shouldered, linked to petty thievery and fraud?", "Asthenic", "Athletic", "Pyknic", "Dysplastic", "hard", "Kretschmer's physiques were asthenic, athletic, pyknic, and dysplastic."],
+    ["Which Kretschmer body type is tall, strong, and muscular, and is linked to crimes of violence?", "Athletic", "Asthenic", "Pyknic", "Dysplastic", "medium", "Athletic types are connected to violent crimes."],
+    ["Henry Goddard's study of the Kallikak family dealt with the heredity of:", "Feeble-mindedness", "Body type", "Moral insanity", "Anomie", "medium", "Goddard believed feeble-mindedness came from a single recessive gene."],
+    ["Which anthropologist supported Lombroso's born-criminal theory by linking physical inferiority to crime?", "Earnest A. Hooton", "Ernst Kretschmer", "Henry Maudsley", "William Sheldon", "hard", "Hooton's methods were later criticized."],
+    ["Who is the Father of Psychoanalysis?", "Sigmund Freud", "Alfred Adler", "Erik Erikson", "Jean Piaget", "easy", "Freud founded the psychoanalytic (psychodynamic) theory of criminality."],
+    ["Which part of Freud's personality is governed by the pleasure principle?", "Id", "Ego", "Superego", "Eros", "medium", "The id represents unconscious drives for pleasure."],
+    ["Which part of Freud's personality is governed by the reality principle?", "Ego", "Id", "Superego", "Eros", "medium", "The ego is the rational, objective part of the personality."],
+    ["Which part of Freud's personality serves as the moral conscience?", "Superego", "Ego", "Id", "Libido", "medium", "The superego has two parts: conscience and ego ideal."],
+    ["In Freud's psychosexual stages, which stage occurs in the first year, when pleasure comes from sucking and biting?", "Oral stage", "Anal stage", "Phallic stage", "Latency", "medium", "Fixation here may lead to smoking, drinking, or drug abuse."],
+    ["Who coined the term \"inferiority complex\"?", "Alfred Adler", "Erik Erikson", "August Aichhorn", "Isaac Ray", "medium", "Adler founded individual psychology."],
+    ["Who described the \"identity crisis\"?", "Erik Erikson", "Alfred Adler", "Jean Piaget", "Lawrence Kohlberg", "medium", "Erikson described the inner turmoil youth face about life roles."],
+    ["Which concept, from August Aichhorn, describes youths who seek immediate gratification and lack guilt?", "Latent delinquency", "Moral insanity", "Inferiority complex", "Anomie", "hard", "Latent delinquency is a predisposition toward antisocial acts."],
+    ["Which psychiatrist popularized the concept of \"moral insanity\"?", "Isaac Ray", "Henry Maudsley", "August Aichhorn", "Alfred Adler", "hard", "Ray wrote A Treatise on the Medical Jurisprudence of Insanity."],
+    ["Who advanced the Multi-Stage Theory of Moral Evolution?", "Lawrence Kohlberg", "Jean Piaget", "Sigmund Freud", "Wilhelm Wundt", "hard", "Kohlberg said children strive to maximize pleasure and avoid punishment."],
+    ["Who introduced the concept of anomie in his book Division of Labor in Society?", "Emile Durkheim", "Robert Merton", "Gabriel Tarde", "Albert Cohen", "medium", "Durkheim is the father of modern sociology."],
+    ["Anomie refers to:", "A condition of normlessness from the breakdown of social order", "A fixation on childhood needs", "Physical features of earlier life forms", "The gap between rich and poor", "medium", "It arises from the loss of standards and values."],
+    ["According to Durkheim, crime is:", "A normal part of society, as normal as birth and death", "An abnormal condition caused by heredity", "Caused only by poverty", "The result of evil spirits", "medium", "He said crime is inevitable and can even effect social change."],
+    ["Who proposed the Theory of Imitation?", "Gabriel Tarde", "Emile Durkheim", "Adolphe Quetelet", "Robert Park", "medium", "Tarde is a forerunner of modern learning theorists."],
+    ["Which school, founded by Adolphe Quetelet and Andre Michel Guerry, used social statistical data?", "Cartographic School", "Chicago School", "Positivist School", "Classical School", "hard", "They found influences of age, sex, climate, and economic status on crime."],
+    ["Which school, developed by Park, Burgess, and Wirth, studied urban conditions as a \"crime-promoting environment\"?", "Chicago School", "Cartographic School", "Classical School", "Neoclassical School", "medium", "It focused on how urban poverty influences crime."],
+    ["Shaw and McKay conceptualized which theory about the breakdown of institutions like the school and family?", "Social Disorganization Theory", "Strain Theory", "Labeling Theory", "Imitation Theory", "hard", "They were influenced by Park and Burgess."],
+    ["Which criminologist improved the anomie concept as the gap between society's ideals and one's social position?", "Robert Merton", "Albert Cohen", "Emile Durkheim", "Louis Wirth", "hard", "Merton's work became strain theory."],
+    ["Which type of criminology focuses on the economic and state crimes of the powerful?", "Marxist criminology", "Feminist criminology", "Cultural criminology", "Classical criminology", "medium", "Feminist criminology focuses on gender and power."],
+    ["Giambattista Della Porta founded the school of:", "Human physiognomy", "Phrenology", "Psychoanalysis", "Cartography", "hard", "Physiognomy relates facial features to behavior."],
+    ["Which Swiss theologian believed a person's character could be read from facial features?", "Johann Kaspar Lavater", "Giambattista Della Porta", "Ernst Kretschmer", "Henry Maudsley", "hard", "He emphasized the ears, nose, and eyes."],
+    ["In Garofalo's classification, which criminals commit crimes against property?", "Deficient criminals", "Murderers", "Violent criminals", "Lascivious criminals", "hard", "Lascivious criminals commit crimes against chastity."],
+    ["Garofalo's Law of Adaptation followed which biological principle?", "Darwin's adaptation and natural selection", "Lombroso's atavism", "Freud's repression", "Merton's strain", "hard", "He proposed death or elimination for those unfit for social life."],
+    ["Ada Jukes was called the \"mother of criminals\" in the study of which family?", "Juke family", "Kallikak family", "Hooton family", "Ferri family", "medium", "Her descendants included paupers, thieves, and murderers."],
+    ["\"Kallikak\" is a pseudonym from the Greek words \"kallos\" and \"kakos\", meaning:", "Beauty and bad", "Strong and weak", "Father and son", "Rich and poor", "hard", "Goddard created the name for the family he studied."],
+    ["Which Kretschmer body type is of medium height with rounded figure and massive neck, and tends toward deception, fraud, and violence?", "Pyknic", "Asthenic", "Athletic", "Dysplastic", "hard", "Dysplastic is a combination of types."],
+    ["Which British psychiatrist wrote \"Homicidal Insanity\" (1863) and \"Insanity and Crime\" (1864)?", "Henry Maudsley", "Isaac Ray", "Henry Goddard", "Ernst Kretschmer", "hard", "Maudsley did not agree with harsh punishment of criminals."],
+    ["The Nature Theory (Goddard, Healy, Bronner) argues that:", "Intelligence is largely genetic and low IQ is linked to crime", "Crime is caused by poor neighborhoods", "Crime is learned from others", "Crime is caused by a weak conscience", "hard", "It relies on ancestry determining IQ."],
+    ["A mental disorder with an identifiable physiological cause, such as head injuries or Alzheimer's disease, is a(n):", "Organic disorder", "Functional disorder", "Emotional problem", "Moral insanity", "hard", "Functional disorders cannot be traced to a known organic disease."],
+    ["Which theory holds that behavior is learned and supported by rewards and extinguished by punishments?", "Behavior theory", "Cognitive theory", "Psychoanalytic theory", "Nature theory", "medium", "Behaviorists focus on actual behaviors in daily life."],
+    ["Which theory focuses on how people mentally perceive and represent the world around them?", "Cognitive theory", "Behavior theory", "Social disorganization theory", "Strain theory", "medium", "It includes the moral development branch."],
+    ["Piaget's Moral Development Theory holds that children evolve through how many stages of cognitive development?", "Four", "Three", "Five", "Six", "hard", "Kohlberg later proposed the multi-stage theory of moral evolution."],
+    ["In Tarde's Theory of Imitation, conscious copying is called:", "Imitation", "Suggestion", "Anomie", "Deviance", "medium", "Suggestion is the unconscious copying."],
+    ["Albert Cohen's \"Delinquent Boys\" (1955) expanded strain theory to include:", "Social status and other goals, not just material goals", "Body types", "Psychosexual stages", "Facial features", "hard", "Cohen expanded the concept of strain."],
+    ["Which criminology emphasizes image, style, representation, and meaning in criminal subcultures?", "Cultural criminology", "Marxist criminology", "Feminist criminology", "Classical criminology", "hard", "It also studies the media construction of crime and crime control."],
+    ["Adolphe Quetelet repudiated the:", "Free will doctrine of the Classical School", "Theory of evolution", "Psychoanalytic theory", "Strain theory", "hard", "He found strong influences of age, sex, climate, and economic status."],
+    ["According to Durkheim, crime can be useful because it has the force to:", "Effect social change", "Eliminate poverty", "Rehabilitate offenders", "Reduce population", "hard", "He said crime can sometimes even be healthful for society."],
+    ["Positivists presumed criminal behavior is caused by:", "Internal and external factors outside the individual's control", "Free will", "Demons", "Divine will", "medium", "They saw people as passive and controlled by biological and environmental factors."],
+    ["Bentham's \"greatest happiness theory\" is also called the:", "Principle of utility", "Law of adaptation", "Pleasure principle", "Reality principle", "hard", "It says the greatest good is what benefits the majority."],
+    ["Which are the three essential elements in deciding whether to commit a crime, according to the rational choice approach?", "Type of crime, time and place, and target", "Desire, opportunity, and capability", "Id, ego, and superego", "Motive, means, and opportunity", "hard", "This relates to the offense-specific and offender-specific concepts."]
+  ]},
+  "Criminal Law": {icon:"⚖️", questions:[
+    ["What branch of law defines crimes and prescribes penalties for them?","Criminal Law","Civil Law","Commercial Law","Constitutional Law","easy","Criminal law deals with offenses against the state or society and establishes corresponding penalties."],
+    ["In criminal law, what is generally required before a person may be held criminally liable?","The required elements of the offense must be established","The person must confess","The victim must forgive the accused","The accused must be a public official","medium","Criminal liability depends on establishing the elements required by the applicable offense and law."],
+    ["Criminal or penal law is that branch of public law which:", "Defines crimes, treats of their nature, and provides for their punishment", "Governs contracts and property", "Regulates court procedure", "Defines the powers of Congress", "easy", "Penal law defines crimes and prescribes penalties."],
+    ["Law in general is defined as:", "An ordinance of reason promulgated for the common good by one who has charge of a society", "A rule imposed by the strongest", "A custom followed by a group", "A decision made by a judge", "medium", "This definition has six characteristics, starting with being an ordinance."],
+    ["Under the Civil Code (as amended by E.O. 200), laws take effect after publication in how many days?", "15 days", "30 days", "10 days", "60 days", "medium", "Unless otherwise provided, laws take effect 15 days after publication."],
+    ["The characteristic of criminal law that applies it equally to all persons within the territory is:", "Generality", "Territoriality", "Prospectivity", "Uniformity", "medium", "Exceptions to generality are treaty stipulations, public international law, and preferential application law."],
+    ["The maritime zone covered by the territorial character of criminal law extends how many nautical miles beyond shore?", "Twelve (12)", "Three (3)", "Two hundred (200)", "Fifty (50)", "hard", "It is measured at low tide."],
+    ["\"No person may be punished for an act that was not yet punishable when he committed it\" refers to:", "Prospectivity", "Generality", "Territoriality", "Uniformity", "medium", "An exception is when a new law favors the accused who is not a habitual delinquent."],
+    ["Criminal law must be construed:", "Liberally in favor of the accused and strictly against the state", "Strictly against the accused", "Liberally in favor of the state", "Equally for both sides", "hard", "If there is doubt, the judge decides in favor of the accused."],
+    ["The Revised Penal Code is also known as:", "Act No. 3815", "R.A. 6506", "P.D. 1612", "B.P. 22", "easy", "It was derived from the Spanish Penal Code."],
+    ["The Revised Penal Code took effect on:", "January 1, 1932", "December 8, 1930", "July 1, 1972", "January 1, 1930", "hard", "It was signed on December 8, 1930 but took effect on January 1, 1932."],
+    ["How many books does the Revised Penal Code have?", "Two", "Three", "Four", "Five", "easy", "Book 1 has five titles and Book 2 has fifteen titles."],
+    ["Which title of Book 1 of the RPC covers Penalties (Arts. 21 to 88)?", "Title 3", "Title 1", "Title 4", "Title 5", "hard", "Title 1 is Felonies, Title 2 is persons liable, Title 4 is extinction of liability, and Title 5 is civil liability."],
+    ["Crimes Against Property (Arts. 293 to 332) fall under which title of Book 2?", "Title 10", "Title 8", "Title 9", "Title 11", "hard", "Title 8 is Crimes Against Persons."],
+    ["R.A. 7610 is the:", "Special Protection Against Child Abuse, Exploitation and Discrimination Act", "Anti-Fencing Law", "Bouncing Check Law", "Anti-Espionage Law", "easy", "It is a special penal law."],
+    ["Which special penal law is the Anti-Fencing Law?", "P.D. 1612", "B.P. 22", "Comm. Act 616", "R.A. 7610", "medium", "B.P. 22 is the Bouncing Check Law."],
+    ["Who is recognized as the first codifier of laws?", "Hammurabi", "Solon", "Drakon", "Moses", "easy", "He was the king of Babylon in the eighteenth century BC."],
+    ["The principle of \"an eye for an eye\" in the Code of Hammurabi is called:", "Law of talion (lex talionis)", "Wergild", "Jus desert", "Utilitarianism", "medium", "Punishment should equal the harm inflicted."],
+    ["Which early Greek code was known as the \"ultimate in severity\"?", "Code of Drakon", "Laws of Solon", "Twelve Tables", "Code of Hammurabi", "medium", "Death was the punishment for almost every offense."],
+    ["Who repealed the laws of Drakon except the law on homicide?", "Solon", "Hammurabi", "Moses", "The Decemvirs", "medium", "Solon saw that laws should apply equally and punishment should be proportionate."],
+    ["Rome's Twelve Tables were written on tablets of:", "Bronze", "Clay", "Stone", "Papyrus", "hard", "The Code of Hammurabi was carved in stone."],
+    ["The monetary compensation for a human life under Lex Salica, based on status, is called:", "Wergild", "Botes", "Lex talionis", "Restitution", "hard", "Lex Salica was the legal custom of ancient Germanic tribes."],
+    ["Which two written codes existed in the Philippines before the Spanish era?", "Maragtas Code and Kalantiaw Code", "Code of Hammurabi and Mosaic Code", "Code of Drakon and Twelve Tables", "Lex Salica and Bloody Code", "medium", "The Maragtas Code is credited to Datu Sumakwel and the Kalantiaw Code to Datu Kalantiaw."],
+    ["Which theory of criminal law says that man has free will and that punishment's purpose is retribution?", "Classical theory", "Positivist theory", "Eclectic theory", "Neoclassical theory", "medium", "The RPC is generally governed by the classical theory."],
+    ["Impossible crimes and habitual delinquency exemplify which theory of criminal law?", "Positivist theory", "Classical theory", "Eclectic theory", "Retributive theory", "hard", "Positivist theory stresses prevention and correction."],
+    ["Which is an exception to the territorial character of the Revised Penal Code?", "Committing an offense on a Philippine ship or airship", "Committing a traffic violation abroad", "Committing a breach of contract abroad", "Committing an offense against a foreign citizen abroad", "medium", "Forging Philippine currency abroad is another exception."],
+    ["Laws that come directly from God, such as the Ten Commandments, are:", "Divine laws", "Human laws", "Civil laws", "Ecclesiastical laws", "easy", "Human laws are enacted by the Church and the State."],
+    ["Laws enacted by the positive act of a legislator are called:", "Positive law", "Natural law", "Divine law", "Eternal law", "medium", "The Ten Commandments are divine positive law."],
+    ["Laws that forbid certain acts, such as killing and stealing, are:", "Negative (prohibitory) laws", "Affirmative laws", "Natural laws", "Moral laws", "medium", "Affirmative laws create a duty, like paying taxes."],
+    ["Laws whose violation makes the violator liable to an established penalty are:", "Penal laws", "Moral laws", "Mixed laws", "Natural laws", "medium", "Mixed laws involve both fault and penalty."],
+    ["In the Philippines, the general power to create law is lodged in the:", "Congress", "Supreme Court", "Local sanggunian", "PNP", "easy", "Congress is bicameral: the House and the Senate."],
+    ["The Eclectic or Mixed Theory is a combination of:", "Positivist and classical thinking", "Retributive and restorative thinking", "Divine and natural law", "Common and civil law", "medium", "It is the basis of Philippine criminal law."],
+    ["Which people conquered Babylon about two centuries after Hammurabi?", "Hittites", "Greeks", "Romans", "Sumerians", "medium", "They used capital punishment for many offenses."],
+    ["The first five books of the Old Testament are collectively known as the:", "Mosaic Code", "Code of Drakon", "Twelve Tables", "Lex Salica", "medium", "It is also called the Laws of Moses."],
+    ["England's system of laws and punishment between 1688 and 1815 is unofficially called the:", "Bloody Code", "Mosaic Code", "Wergild", "Lex Salica", "hard", "It was known for its severe punishments."],
+    ["Felonies and circumstances affecting criminal liability are found in which articles of the RPC?", "Arts. 3 to 15", "Arts. 16 to 20", "Arts. 21 to 88", "Arts. 89 to 99", "hard", "They are in Title 1 of Book 1."],
+    ["Title 1 of Book 2 of the RPC covers:", "Crimes against national security and the law of nations", "Crimes against public order", "Crimes against persons", "Crimes against property", "hard", "It covers Arts. 114 to 123."],
+    ["Quasi-offenses are punished under which article of the RPC?", "Article 365", "Article 114", "Article 246", "Article 293", "hard", "It is Title 14 of Book 2."],
+    ["Comm. Act 616 is the:", "Anti-Espionage Law", "Anti-Fencing Law", "Bouncing Check Law", "Child Abuse Law", "hard", "It is a special penal law."],
+    ["The characteristic of criminal law that treats an act as a crime no matter who committed it is:", "Uniformity", "Generality", "Prospectivity", "Territoriality", "medium", "Definitions and penalties must be uniformly construed."],
+    ["Exceptions to generality are treaty stipulations, public international law, and:", "Law on preferential application", "Law on territoriality", "Law on prospectivity", "Law on uniformity", "hard", "These exempt certain persons from criminal law."],
+    ["Under the Laws of Solon, a thief had to return stolen property and pay a sum equal to:", "Twice its value", "Half its value", "Its exact value", "Ten times its value", "hard", "Solon saw punishment must be proportionate."],
+    ["Under the Code of Hammurabi, if a thief was not caught, who compensated the robbery victim?", "The authorities of the city", "The king's family", "The victim's neighbors", "The judge", "hard", "This is one highlight of the code."]
+  ]},
+  "Police Administration": {icon:"👮", questions:[
+    ["Which Philippine agency is primarily responsible for maintaining peace and order and enforcing laws as the national police force?","Philippine National Police","Bureau of Fire Protection","Bureau of Jail Management and Penology","Bureau of Corrections","easy","The Philippine National Police is the country's national police force."],
+    ["What is community policing primarily concerned with?","Police-community partnership","Increasing prison sentences","Laboratory testing","Court sentencing","easy","Community policing emphasizes cooperation and partnerships between police and the community."]
+  ]},
+  "Criminal Investigation": {icon:"🔍", questions:[
+    ["What is the primary purpose of a crime scene investigation?","Collect and document evidence","Determine the sentence immediately","Replace the prosecutor","Interview the judge","easy","Crime scene investigation involves systematically documenting, identifying, collecting, and preserving relevant evidence."],
+    ["Why is proper evidence handling important?","To preserve its integrity","To make evidence more dramatic","To avoid documenting it","To eliminate the chain of custody","medium","Proper handling helps preserve evidence integrity and supports its reliability and admissibility."]
+  ]},
+  "Forensic Science": {icon:"🧪", questions:[
+    ["Which field deals with the scientific examination of evidence for legal purposes?","Forensic Science","Political Science","Economics","Sociology","easy","Forensic science applies scientific methods to evidence and questions arising from legal investigations."],
+    ["DNA analysis can be useful in forensic investigations because DNA can:","Help associate biological evidence with individuals","Determine a person's exact future behavior","Automatically establish motive","Replace every other type of evidence","medium","DNA evidence can help associate biological material with an individual when properly collected and analyzed."],
+    ["The word \"forensic\" comes from the Latin \"forum\", meaning:", "Market place", "Court", "Science", "Law", "medium", "Forum was a place where people gathered for public discussion."],
+    ["When \"forensic\" is attached to a field of study, it generally means:", "Application to the administration of justice", "Application to business", "Application to medicine only", "Application to teaching", "easy", "Forensic chemistry is chemistry applied to the administration of justice."],
+    ["Who is known as the Father of Forensic Ballistics?", "Calvin Goddard", "Albert Osborn", "Hans Gross", "John Larson", "medium", "He said that bullet markings are as valuable as fingerprints."],
+    ["Which course covers post-mortem examination and the kinds and signs of death?", "Forensic medicine", "Forensic photography", "Questioned document", "Forensic chemistry", "medium", "It also covers the identification of living and dead persons."],
+    ["Ancient methods of crime detection such as the red hot iron or boiling water tests were called:", "Ordeals", "Interrogations", "Polygraphy", "Lie detection", "medium", "Almost all ordeals ended in conviction."],
+    ["Who in 1895 used the hydrosphygmograph and is known as the father of scientific lie detection?", "Cesare Lombroso", "John Larson", "Hans Gross", "Thomas Jefferson", "hard", "The device recorded changes in pulse beat."],
+    ["Who developed the first portable polygraph, the \"Bread Board Lie Detector\", in 1921?", "John A. Larson", "Cesare Lombroso", "Thomas Jefferson", "Albert Osborn", "hard", "It recorded changes in blood pressure and other physiological responses."],
+    ["What are the two possible drawbacks of a polygraph result?", "False positive and false negative", "False alarm and overload", "Positive and neutral", "Interference and delay", "medium", "A polygraph can wrongly flag the truthful or miss deceit."],
+    ["The two parts of the course Forensic Chemistry and Toxicology are:", "Forensic chemistry and forensic toxicology", "Forensic biology and forensic physics", "Forensic medicine and forensic photography", "Ballistics and questioned documents", "easy", "Chemistry deals with physical evidence and toxicology with poisons."],
+    ["According to Hans Gross, the ultimate goal of investigative work is:", "The search for truth", "Punishing the guilty", "Collecting confessions", "Closing cases quickly", "medium", "Gross called all investigation a battle against lies."],
+    ["Polygraphy is the scientific method of detecting deception with the aid of a:", "Polygraph machine", "Camera", "Microscope", "Fingerprint kit", "easy", "It records physiological responses."],
+    ["Who used the word \"polygraphy\"?", "Thomas Jefferson", "John Larson", "Cesare Lombroso", "Hans Gross", "hard", "Larson developed the first portable polygraph in 1921."],
+    ["Which of the following is another method of detecting deception besides polygraphy?", "Word association test", "Fingerprint dusting", "Casting", "Bullet comparison", "medium", "Others are truth serum and hypnotism."],
+    ["Under CMO 21 (2005), Forensic Medicine belonged to which subject category?", "Criminalistics", "Criminal law", "Law enforcement administration", "Correctional administration", "hard", "It covers living and dead persons and post-mortem changes."],
+    ["Ancient ordeals, such as the red hot iron or boiling water tests, almost always resulted in:", "Conviction", "Acquittal", "Dismissal", "Probation", "medium", "Execution was often immediate."]
+  ]},
+  "Criminalistics": {icon:"🔬", questions:[
+    ["Which area is commonly associated with criminalistics?","Fingerprint examination","Political campaigning","Budget management","School administration","easy","Fingerprint examination is one of the areas commonly associated with criminalistics."],
+    ["What is the purpose of forensic photography at a crime scene?","To accurately document the scene and evidence","To decorate the case file","To replace written reports","To alter the evidence","easy","Forensic photography provides visual documentation of the crime scene and relevant evidence."],
+    ["Criminalistics was formerly known as:", "Police Sciences", "Forensic Medicine", "Police Administration", "Criminal Law", "easy", "It is a special branch of forensic science."],
+    ["Criminalistics is a special branch of forensic science that focuses on:", "Identification, collection, analysis, comparison, and evaluation of physical evidence", "Studying the causes of crime", "Studying victims", "Managing correctional institutions", "medium", "It uses scientific methods and instruments."],
+    ["Dactyloscopy is only one method of:", "Personal identification", "Questioned document examination", "Lie detection", "Forensic photography", "medium", "Personal identification covers many methods based on a person's unique characteristics."],
+    ["Forensic photography was formerly called:", "Police photography", "Crime scene sketching", "Black photography", "Evidence photography", "medium", "It was formerly known as black and white photography."],
+    ["Under crime scene procedure, no physical evidence may be removed without first being:", "Photographed", "Weighed", "Tested", "Packaged", "medium", "It must also be included in the sketch and recorded."],
+    ["Ballistics is originally an applied science dealing with:", "The motion of the projectile", "Fingerprints", "Handwriting", "Poisons", "easy", "Forensic ballistics is the science of firearms and ammunition."],
+    ["Who is the Father of Questioned Document Examination?", "Albert S. Osborn", "Hans Gross", "Calvin Goddard", "John Larson", "medium", "Osborn is credited as the father of questioned document."],
+    ["Who is the Father of Criminalistics?", "Hans Gross", "Albert Osborn", "Cesare Lombroso", "Edwin Sutherland", "medium", "Gross said that all investigative work is a battle against lies."],
+    ["A document issued by a public official in the exercise of his office, bearing a seal and authorized signature, is a(n):", "Official document", "Private document", "Commercial document", "Electronic document", "medium", "An official document is also a public document."],
+    ["A theater ticket is an example of which kind of document?", "Private document", "Public document", "Commercial document", "Official document", "medium", "A private document is executed by a private person without a notary."],
+    ["An \"ancient document\" is one that is more than how many years old and kept where it is normally found?", "30 years", "10 years", "15 years", "50 years", "hard", "Ancient documents are an exemption from proving a private document's due execution."],
+    ["The \"Best Evidence Rule\" was renamed in the amended rules on evidence as the:", "Original Document Rule", "Hearsay Rule", "Parol Evidence Rule", "Chain of Custody Rule", "hard", "It applies to documents offered as proof in court."],
+    ["Questioned document examination covers any material that has:", "Marks, symbols, or signs that impart information", "Only handwriting", "Only typewriting", "Only photographs", "medium", "A document is not just paper with writing."],
+    ["Documents acknowledged before a notary public (except last wills) are:", "Public documents", "Private documents", "Commercial documents", "Electronic documents", "medium", "They are also called notarial documents."],
+    ["Documents defined and regulated by the Code of Commerce are:", "Commercial documents", "Public documents", "Private documents", "Official documents", "medium", "They are governed by commercial law."],
+    ["Information represented electronically, such as data, figures, and symbols, is a(n):", "Electronic document", "Private document", "Official document", "Commercial document", "easy", "It is received, recorded, stored, or processed electronically."],
+    ["The word \"photography\" comes from the Greek \"phos\", which means:", "Light", "Picture", "Camera", "Writing", "hard", "Photography is image reproduction by action of light."],
+    ["Alexander John Forsyth is called the father of:", "Percussion powder", "Dactyloscopy", "Polygraphy", "Toxicology", "hard", "He made the priming mixture that led to the development of firearms."],
+    ["Forensic ballistics was used as court evidence earlier than:", "Fingerprint science", "Photography", "DNA testing", "Polygraphy", "hard", "It is one of the earliest forensic sciences."]
+  ]},
+  "Correctional Administration": {icon:"🏢", questions:[
+    ["What is one major goal of corrections?","Rehabilitation and appropriate management of offenders","Destroying evidence","Conducting elections","Identifying fingerprints only","easy","Corrections includes the management of offenders and may involve rehabilitation and reintegration."],
+    ["Which agency manages city and municipal jails in the Philippines?","BJMP","PNP","NBI","BFP","easy","The Bureau of Jail Management and Penology manages city and municipal jails."],
+    ["The word penology comes from the Latin \"poena\", which means:", "Penalty", "Prison", "Punishment only", "Crime", "easy", "Poena means penalty and logia means study."],
+    ["Who wrote \"The State of the Prisons in England and Wales\" in 1773?", "John Howard", "William Penn", "Jeremy Bentham", "Cesare Beccaria", "medium", "He is known as one of the greatest prisoner reformers."],
+    ["The Walnut Street Jail built in Philadelphia in 1790 used:", "Solitary confinement", "The congregate system", "The tier system", "Transportation", "medium", "Solitary confinement later became problematic due to overcrowding."],
+    ["The Auburn Prison system, in which prisoners ate and worked in groups, is also called the:", "Congregate system", "Separate system", "Solitary system", "Transportation system", "medium", "Auburn was established in 1816."],
+    ["Pennsylvania's pure solitary confinement system of 1818 is also called the:", "Separate system", "Congregate system", "Tier system", "Mark system", "medium", "Prisoners were kept in seclusion so they would not influence each other."],
+    ["Which model of penology follows \"an eye for an eye\"?", "Retributive justice model", "Utilitarian model", "Restorative model", "Rehabilitation model", "easy", "Hammurabi's Code is evidence of this concept."],
+    ["The principle that violators deserve to be punished, and that the punishment should be what they deserve, is:", "Jus desert", "Equity", "Reciprocity", "Restitution", "hard", "Jus desert is the basis for proportionate punishment."],
+    ["The principle that the penalty should match the gravity of the offense is:", "Proportionality", "Equity", "Reciprocity", "Isolation", "medium", "Proportionality is one philosophical basis of the retribution model."],
+    ["Which model, developed by Bentham, focuses on crime prevention through deterrence?", "Utilitarian model", "Retributive model", "Restorative model", "Positivist model", "medium", "It involves both specific and general deterrence."],
+    ["Punishment meant to set an example for others in society is called:", "General deterrence", "Specific deterrence", "Incapacitation", "Restitution", "medium", "Specific deterrence is aimed at the offender himself."],
+    ["Which model requires the maximum participation of society to restore balance and harmony?", "Restorative model", "Retributive model", "Utilitarian model", "Classical model", "medium", "Restorative means bringing back balance and order."],
+    ["Which principle of punishment may go as far as execution under the death penalty?", "Incapacitation", "Isolation", "Restitution", "Restoration", "hard", "Incapacitation removes the offender from society to prevent future crime."],
+    ["Rehabilitation as a principle of punishment is a product of which group?", "Positivists", "Classical thinkers", "Utilitarians", "Neoclassicists", "hard", "Positivists see crime as a result of psychological or behavioral problems."],
+    ["Which principle focuses on restoring the offended party from financial or economic harm?", "Restitution", "Restoration", "Retribution", "Isolation", "medium", "In criminal law it appears as fines and civil awards for damages."],
+    ["Whipping using rods, switches, or the cat-o'-nine-tails is called:", "Flogging", "Branding", "Mutilation", "Pillory", "easy", "Flogging comes from the Latin flagellum, meaning whip."],
+    ["A wooden or metal frame with three holes for the arms and head, used in public, is called a:", "Pillory", "Brand", "Rack", "Stockade", "medium", "It clamps the offender while he stands in public."],
+    ["The word \"capital\" in capital punishment comes from the Latin \"caput\", meaning:", "Head", "Death", "Law", "Crime", "hard", "It alludes to execution by beheading."],
+    ["Which execution method has only been used by the United States and the Philippines?", "Electrocution", "Gas inhalation", "Hanging", "Beheading", "hard", "Gas inhalation was used only by the US and Lithuania."],
+    ["Which Republic Act designated lethal injection as the method of execution in the Philippines?", "R.A. 8177", "R.A. 7659", "R.A. 6506", "R.A. 11131", "hard", "R.A. 7659 imposed the death penalty for heinous crimes."],
+    ["Punishment from the 15th century down to ancient times was characterized as:", "Immediate and severe, including torture", "Mild and rehabilitative", "Restorative", "Community-based", "medium", "It followed the crime control model of justice."],
+    ["Under the Crime Control model, the offender is presumed:", "Guilty", "Innocent", "Rehabilitated", "A victim", "hard", "It is the offender's duty to prove his innocence."],
+    ["Transportation as a form of punishment began after the discovery of the:", "New World", "Panopticon", "Penitentiary", "Bastille", "hard", "Convicts were sent overseas to colonies."],
+    ["Who advocated shifting punishment to incarceration and the end of torture, mutilation, and death in Pennsylvania?", "William Penn", "John Howard", "Cesare Beccaria", "Jeremy Bentham", "medium", "Penn is the founder of Pennsylvania."],
+    ["The later part of the 18th century is called the:", "Age of Enlightenment", "Age of Reason", "Dark Ages", "Age of Reformation", "medium", "It was a reaction to the brutality of the early 18th century."],
+    ["The principle that people who commit the same offense should be treated the same is:", "Equity", "Reciprocity", "Jus desert", "Restitution", "medium", "It is one philosophical basis of the retribution model."],
+    ["The principle that punishment is a normal reaction of society to maintain social order is:", "Reciprocity", "Equity", "Proportionality", "Isolation", "hard", "Society feels satisfied with the punishment given."],
+    ["Putting a convict behind bars to separate him from society is the principle of:", "Isolation", "Restoration", "Restitution", "Rehabilitation", "easy", "It is aimed at preventing re-offending."],
+    ["Which principle requires the offender to seek forgiveness from the victim, society, and himself?", "Restoration", "Restitution", "Retribution", "Isolation", "hard", "The offender also harmed the relatives and the community."],
+    ["Burning the skin of a living person with hot metal marks is called:", "Branding", "Flogging", "Pillory", "Exile", "medium", "It is also called stigmatizing."],
+    ["Cutting an organ or body part of the offender is called:", "Mutilation", "Flogging", "Branding", "Pillory", "medium", "It is typical of lex taliones."],
+    ["Which method of execution was never legally adopted in the Philippines?", "Hanging", "Electrocution", "Lethal injection", "Firing squad", "hard", "Hanging is still used in countries like India, Japan, and Singapore."],
+    ["The trend in penology moved from retributive to restorative justice and now to:", "Community justice", "Divine justice", "Corporal justice", "Military justice", "hard", "The choice depends on the crime and the criminal."]
+  ]},
+  "Juvenile Delinquency": {icon:"👦", questions:[
+    ["Juvenile delinquency generally refers to:","Law-violating or delinquent behavior by young persons","Adult employment","Court architecture","Police equipment","easy","Juvenile delinquency generally concerns unlawful or delinquent behavior involving young persons."]
+  ]},
+  "Victimology": {icon:"👥", questions:[
+    ["What is Victimology primarily concerned with?","The study of victims and victimization","The study of fingerprints only","The design of police vehicles","The chemistry of explosives","easy","Victimology studies victims, victimization, victim-offender relationships, and related issues."]
+  ]},
+  "Philippine Criminal Justice System": {icon:"🇵🇭", questions:[
+    ["Which of the following is commonly identified as a component of the Philippine Criminal Justice System?","Law Enforcement","Tourism","Agriculture","Transportation","easy","Law enforcement is one of the recognized components of the Philippine Criminal Justice System."]
+  ]}
+};
+
+const $ = id => document.getElementById(id);
+let currentSubject = "", currentQuestions = [], currentQuestion = 0, score = 0, randomMode = false;
+
+function shuffle(a){
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// turn a compact row into a question object with shuffled options
+function build(row, subject){
+  const options = shuffle(row.slice(1, 5).map((text, i) => ({text, ok: i === 0})));
+  return {q: row[0], options, answer: options.findIndex(o => o.ok), difficulty: row[5], explanation: row[6], subject};
+}
+
+function showOnly(id){
+  ["home","settings","quiz","results"].forEach(s => $(s).classList.toggle("hidden", s !== id));
+  window.scrollTo(0, 0);
+}
+
+// subject cards
+Object.keys(quizData).forEach(subject => {
+  const d = quizData[subject];
+  const b = document.createElement("button");
+  b.className = "card subject";
+  b.innerHTML = '<div class="icon"></div><h2></h2><p></p>';
+  b.querySelector(".icon").textContent = d.icon;
+  b.querySelector("h2").textContent = subject;
+  b.querySelector("p").textContent = d.questions.length + (d.questions.length === 1 ? " question" : " questions") + " available";
+  b.onclick = () => selectSubject(subject);
+  $("subjects").appendChild(b);
+});
+
+function selectSubject(subject){
+  currentSubject = subject;
+  randomMode = false;
+  $("selectedSubject").textContent = subject;
+  showOnly("settings");
+}
+
+function startRandomQuiz(){
+  randomMode = true;
+  currentSubject = "Random Quiz";
+  const all = [];
+  Object.keys(quizData).forEach(s => quizData[s].questions.forEach(r => all.push(build(r, s))));
+  currentQuestions = shuffle(all).slice(0, Number($("randomCount").value));
+  startQuizScreen();
+}
+
+function beginQuiz(){
+  randomMode = false;
+  const difficulty = $("difficulty").value;
+  let rows = quizData[currentSubject].questions;
+  if (difficulty !== "all") rows = rows.filter(r => r[5] === difficulty);
+  if (rows.length === 0) { alert("No questions available for this difficulty."); return; }
+  const count = Number($("questionCount").value);
+  currentQuestions = shuffle(rows.map(r => build(r, currentSubject))).slice(0, count);
+  startQuizScreen();
+}
+
+function startQuizScreen(){
+  currentQuestion = 0;
+  score = 0;
+  showOnly("quiz");
+  showQuestion();
+}
+
+function showQuestion(){
+  const q = currentQuestions[currentQuestion];
+  $("questionNumber").textContent = "Question " + (currentQuestion + 1) + " of " + currentQuestions.length;
+  $("question").textContent = q.q;
+  $("progressBar").style.width = (currentQuestion / currentQuestions.length * 100) + "%";
+  $("options").innerHTML = "";
+  $("explanation").classList.add("hidden");
+  $("nextButton").classList.add("hidden");
+  $("nextButton").textContent = currentQuestion === currentQuestions.length - 1 ? "See Results →" : "Next Question →";
+  q.options.forEach((o, i) => {
+    const b = document.createElement("button");
+    b.className = "option";
+    b.textContent = o.text;
+    b.onclick = () => selectAnswer(i, b);
+    $("options").appendChild(b);
+  });
+}
+
+function selectAnswer(index, btn){
+  const q = currentQuestions[currentQuestion];
+  const buttons = document.querySelectorAll(".option");
+  buttons.forEach(b => b.disabled = true);
+  if (index === q.answer) {
+    btn.classList.add("correct");
+    score++;
+  } else {
+    btn.classList.add("wrong");
+    buttons[q.answer].classList.add("correct");
+  }
+  $("explanation").textContent = "💡 " + q.explanation;
+  $("explanation").classList.remove("hidden");
+  $("nextButton").classList.remove("hidden");
+  $("nextButton").scrollIntoView({behavior: "smooth", block: "nearest"});
+}
+
+function nextQuestion(){
+  currentQuestion++;
+  if (currentQuestion >= currentQuestions.length) showResults(); else showQuestion();
+}
+
+function showResults(){
+  showOnly("results");
+  const pct = Math.round(score / currentQuestions.length * 100);
+  $("finalScore").textContent = score + " / " + currentQuestions.length;
+  $("resultMessage").textContent =
+    pct >= 90 ? "🏆 Excellent! You have a strong understanding of the topic." :
+    pct >= 75 ? "👏 Good job! Keep reviewing and improving." :
+    pct >= 60 ? "📖 Fair performance. More review will help." :
+                "💪 Keep studying. You can improve with practice!";
+}
+
+function restartQuiz(){
+  if (randomMode) startRandomQuiz(); else beginQuiz();
+}
+
+function goHome(){ showOnly("home"); }
+</script>
+</body>
+</html>
